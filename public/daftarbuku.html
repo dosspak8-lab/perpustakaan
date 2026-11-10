@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Data Buku</title>
+    <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Daftar Data Buku</h1>
+    
+    <button onclick="bukaTambah()" class="bg-green-400 p-2 mb-4 rounded font-semibold">+ Tambah Buku Baru</button>
+
+    <div id="box-tambah" class="hidden mb-6 w-[30%] rounded-xl bg-gray-300 p-5">
+        <h2 class="text-xl font-bold mb-2">Tambah Buku Baru</h2>
+        <form action="/buku/tambah" method="POST" class="flex flex-col">
+            <label>Judul:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="text" name="judul" required>
+
+            <label>Kategori:</label>
+            <select class="border-2 border-amber-300 bg-white mb-2 p-1" name="kategori" required>
+                <option value="" disabled selected>-- Pilih Kategori --</option>
+                <option value="Pertempuran Panas">Pertempuran Panas</option>
+                <option value="Biologi">Biologi</option>
+                <option value="NgawiFlix">NgawiFlix</option>
+                <option value="BomBoClat">BomBoClat</option>
+            </select>
+
+            <label>Penulis:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="text" name="penulis" required>
+
+            <label>Tahun Terbit:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="number" name="tahun_terbit" required>
+
+            <label>ISBN:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="text" name="isbn" required>
+
+            <div class="flex gap-2 mt-2">
+                <button type="submit" class="p-2 bg-green-400 rounded font-semibold">Simpan Buku</button>
+                <button type="button" onclick="batalTambah()" class="p-2 bg-gray-400 rounded">Batal</button>
+            </div>
+        </form>
+    </div>
+
+    <table class="w-full border-collapse border border-gray-400 text-left">
+        <thead>
+            <tr class="bg-gray-300">
+                <th class="border border-gray-400 p-2">ID</th>
+                <th class="border border-gray-400 p-2">Judul</th>
+                <th class="border border-gray-400 p-2">Kategori</th>
+                <th class="border border-gray-400 p-2">Penulis</th>
+                <th class="border border-gray-400 p-2">Tahun Terbit</th>
+                <th class="border border-gray-400 p-2">ISBN</th>
+                <th class="border border-gray-400 p-2">Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="tabel-buku">
+
+        </tbody>
+    </table>
+
+    <div id="box-edit" class="hidden mt-6 w-[30%] rounded-xl bg-gray-300 p-5">
+        <h2 class="text-xl font-bold mb-2">Edit Data Buku</h2>
+        <form id="form-edit" class="flex flex-col">
+            <input type="hidden" id="edit-id">
+
+            <label>Judul:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="text" id="edit-judul" required>
+
+            <label>Kategori:</label>
+            <select class="border-2 border-amber-300 bg-white mb-2 p-1" id="edit-kategori" required>
+                <option value="Pertempuran Panas">Pertempuran Panas</option>
+                <option value="Biologi">Biologi</option>
+                <option value="NgawiFlix">NgawiFlix</option>
+                <option value="BomBoClat">BomBoClat</option>
+            </select>
+
+            <label>Penulis:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="text" id="edit-penulis" required>
+
+            <label>Tahun Terbit:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="number" id="edit-tahun" required>
+
+            <label>ISBN:</label>
+            <input class="border-2 border-amber-300 mb-2 p-1" type="text" id="edit-isbn" required>
+
+            <div class="flex gap-2 mt-2">
+                <button type="submit" class="p-2 bg-blue-400 rounded font-semibold">Simpan Perubahan</button>
+                <button type="button" onclick="batalEdit()" class="p-2 bg-gray-400 rounded">Batal</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+       
+        async function muatBuku() {
+            const res = await fetch('/buku');
+            const result = await res.json();
+            const tbody = document.getElementById('tabel-buku');
+            tbody.innerHTML = '';
+
+            result.data.forEach(buku => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="border border-gray-400 p-2">${buku.id}</td>
+                        <td class="border border-gray-400 p-2">${buku.judul}</td>
+                        <td class="border border-gray-400 p-2">${buku.kategori}</td>
+                        <td class="border border-gray-400 p-2">${buku.penulis}</td>
+                        <td class="border border-gray-400 p-2">${buku.tahun_terbit}</td>
+                        <td class="border border-gray-400 p-2">${buku.isbn}</td>
+                        <td class="border border-gray-400 p-2">
+                            <button onclick='bukaEdit(${JSON.stringify(buku)})' class="bg-amber-300 px-2 py-1 rounded mr-1">Edit</button>
+                            <button onclick="hapusBuku(${buku.id})" class="bg-red-400 px-2 py-1 rounded text-white">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        
+        function bukaTambah() {
+            batalEdit(); 
+            document.getElementById('box-tambah').classList.remove('hidden');
+        }
+
+        function batalTambah() {
+            document.getElementById('box-tambah').classList.add('hidden');
+        }
+
+        
+        async function hapusBuku(id) {
+            if (confirm('Yakin ingin menghapus buku ini?')) {
+                await fetch(`/buku/hapus/${id}`, { method: 'DELETE' });
+                muatBuku();
+            }
+        }
+
+        
+        function bukaEdit(buku) {
+            batalTambah(); 
+            document.getElementById('box-edit').classList.remove('hidden');
+            document.getElementById('edit-id').value = buku.id;
+            document.getElementById('edit-judul').value = buku.judul;
+            document.getElementById('edit-kategori').value = buku.kategori;
+            document.getElementById('edit-penulis').value = buku.penulis;
+            document.getElementById('edit-tahun').value = buku.tahun_terbit;
+            document.getElementById('edit-isbn').value = buku.isbn;
+        }
+
+        function batalEdit() {
+            document.getElementById('box-edit').classList.add('hidden');
+        }
+
+        
+        document.getElementById('form-edit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const dataUpdate = {
+                judul: document.getElementById('edit-judul').value,
+                kategori: document.getElementById('edit-kategori').value,
+                penulis: document.getElementById('edit-penulis').value,
+                tahun_terbit: document.getElementById('edit-tahun').value,
+                isbn: document.getElementById('edit-isbn').value
+            };
+
+            await fetch(`/buku/edit/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataUpdate)
+            });
+
+            batalEdit();
+            muatBuku();
+        });
+
+        
+        muatBuku();
+    </script>
+</body>
+</html>

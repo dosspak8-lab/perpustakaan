@@ -1,0 +1,21 @@
+{
+  "name": "express6",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tailwind:watch": "tailwindcss -i ./src/css/style.css -o ./public/css/output.css --watch",
+    "dev": "node --watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.5",
+    "express": "^5.3.0",
+    "sqlite3": "^6.0.1",
+    "tailwindcss": "^4.3.5"
+  }
+}
